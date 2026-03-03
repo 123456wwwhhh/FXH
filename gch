@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toker · 块</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #1a1a1a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 16px;
+        }
+
+        .toker {
+            max-width: 720px;
+            width: 100%;
+            background: #111;
+            border: 4px solid #2a2a2a;
+            box-shadow: 12px 12px 0 #000;
+            padding: 40px 32px;
+        }
+
+        /* 方块精神 —— 一切都是硬的 */
+        h1 {
+            font-size: 5rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            color: #f0f0f0;
+            text-transform: uppercase;
+            line-height: 0.9;
+            margin-bottom: 8px;
+            border-left: 12px solid #888;
+            padding-left: 20px;
+            word-break: break-word;
+            font-family: 'Impact', 'Courier New', monospace;
+        }
+
+        .subline {
+            height: 8px;
+            width: 100%;
+            background: repeating-linear-gradient(45deg, #888, #888 8px, #222 8px, #222 16px);
+            margin: 20px 0 32px 0;
+        }
+
+        /* 按钮行 — 方块堆叠 */
+        .button-row {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .block-btn {
+            flex: 1 1 200px;
+            background: #222;
+            border: 4px solid #3a3a3a;
+            box-shadow: 6px 6px 0 #000;
+            padding: 24px 12px;
+            color: #eee;
+            font-size: 2rem;
+            font-weight: 600;
+            font-family: 'Courier New', Courier, monospace;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: 0.07s linear;
+            text-align: center;
+            border-radius: 0;
+            line-height: 1.2;
+            -webkit-appearance: none;
+        }
+
+        .block-btn:active {
+            transform: translate(4px, 4px);
+            box-shadow: 2px 2px 0 #000;
+            background-color: #2e2e2e;
+        }
+
+        .btn-free {
+            background: #1e2b2e;
+            border-color: #3a6e6e;
+        }
+
+        .btn-paid {
+            background: #2a1e1e;
+            border-color: #7a4a4a;
+        }
+
+        /* 付费面板 — 纯方块 */
+        .paid-panel {
+            background: #1b1b1b;
+            border: 4px solid #3a3a3a;
+            box-shadow: 6px 6px 0 #000;
+            padding: 28px 24px;
+            margin-top: 16px;
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .paid-panel[hidden] {
+            display: none;
+        }
+
+        .lock-line {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .lock-label {
+            color: #aaa;
+            font-size: 1.6rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            border: 2px solid #3a3a3a;
+            padding: 8px 16px;
+            background: #0f0f0f;
+            letter-spacing: 2px;
+        }
+
+        .pw-block {
+            flex: 3 1 200px;
+            background: #0a0a0a;
+            border: 4px solid #3f3f3f;
+            box-shadow: inset 4px 4px 0 #000;
+            padding: 16px 20px;
+            color: #0f0;
+            font-size: 1.8rem;
+            font-family: 'Courier New', Courier, monospace;
+            outline: none;
+            -webkit-appearance: none;
+            border-radius: 0;
+            letter-spacing: 4px;
+        }
+
+        .pw-block:focus {
+            border-color: #8a8a8a;
+            background: #111;
+        }
+
+        .unlock-block {
+            flex: 1 0 auto;
+            background: #2b2b2b;
+            border: 4px solid #5a5a5a;
+            box-shadow: 4px 4px 0 #000;
+            padding: 16px 28px;
+            color: #ddd;
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.05s linear;
+            text-align: center;
+            font-family: 'Courier New', Courier, monospace;
+            border-radius: 0;
+        }
+
+        .unlock-block:active {
+            transform: translate(4px, 4px);
+            box-shadow: none;
+        }
+
+        /* 纯粹占位消息 — 但你说不要多的提示，所以这里只有极简静默区，几乎不显示文字内容 */
+        .static-field {
+            height: 8px;
+            background: #222;
+            border: 2px solid #333;
+            margin-top: 16px;
+            visibility: hidden;  /* 完全隐藏，不占视觉 但保留结构 */
+        }
+
+        /* 底部的水印 — 也是块 */
+        .toker-footer {
+            margin-top: 40px;
+            border-top: 4px solid #2a2a2a;
+            padding-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            color: #4a4a4a;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+        }
+
+        .footer-block {
+            border: 2px solid #333;
+            padding: 6px 12px;
+            background: #0f0f0f;
+        }
+    </style>
+</head>
+<body>
+    <div class="toker">
+        <!-- 方块头 -->
+        <h1>TOKER</h1>
+        <div class="subline"></div>
+
+        <!-- 两个下载按钮 (块风格) 下载链接统一为 IU.zip -->
+        <div class="button-row">
+            <button class="block-btn btn-free" id="freeDownloadBtn">⬇️ 免费版</button>
+            <button class="block-btn btn-paid" id="showPaidBtn">⬇️ 付费版</button>
+        </div>
+
+        <!-- 付费密码面板 (默认隐藏) 没有任何提示文字，只有输入+解锁块 -->
+        <div class="paid-panel" id="paidPanel" hidden>
+            <div class="lock-line">
+                <span class="lock-label">🔒暗号</span>
+                <input type="password" id="passwordInput" class="pw-block" placeholder="" maxlength="20" autocomplete="off">
+                <button class="unlock-block" id="unlockBtn">解锁⏎</button>
+            </div>
+            <!-- 没有消息条、没有任何多余文字 —— 完全符合『不要多的提示』 -->
+        </div>
+
+        <!-- 一个看不见的占位，用于保证结构完整但没有提示 -->
+        <div class="static-field"></div>
+
+        <!-- 底部纯粹方块装饰，不包含任何动态提示 -->
+        <div class="toker-footer">
+            <span class="footer-block">TOKER</span>
+            <span class="footer-block">BLOCK EDGE</span>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // --- 设定 ---
+            const CORRECT_PASSWORD = "123456";            // 密码不显示在页面任何地方
+            // 两个链接完全相同 (根据要求，免费/付费都变成 IU.zip)
+            const DOWNLOAD_URL = "https://github.com/123456wwwhhh/1/releases/download/v1.0/IU.zip";
+
+            // --- DOM ---
+            const freeBtn = document.getElementById('freeDownloadBtn');
+            const showPaidBtn = document.getElementById('showPaidBtn');
+            const paidPanel = document.getElementById('paidPanel');
+            const passwordField = document.getElementById('passwordInput');
+            const unlockBtn = document.getElementById('unlockBtn');
+
+            // --- 免费下载 (直接跳转) ---
+            freeBtn.addEventListener('click', function() {
+                window.location.href = DOWNLOAD_URL;
+            });
+
+            // --- 显示付费面板 (点击付费版按钮，切换显示/隐藏) ---
+            showPaidBtn.addEventListener('click', function() {
+                if (paidPanel.hidden) {
+                    paidPanel.hidden = false;
+                    passwordField.value = '';   // 每次打开清空，不残留
+                    passwordField.focus();
+                } else {
+                    paidPanel.hidden = true;
+                }
+            });
+
+            // --- 验证并下载付费 (密码正确则跳转，否则只清空输入 + 隐藏提示不要出现) ---
+            unlockBtn.addEventListener('click', function() {
+                const entered = passwordField.value.trim();
+
+                // 没有任何弹窗、没有任何提示消息，完全静默处理。
+                // 如果密码正确 → 跳转
+                if (entered === CORRECT_PASSWORD) {
+                    window.location.href = DOWNLOAD_URL;
+                } else {
+                    // 密码错误：只清空输入框，并且让面板保持现状（没有任何文字反馈）
+                    passwordField.value = '';
+                    // 可选：重新聚焦，但不产生任何文字反馈
+                    passwordField.focus();
+                }
+            });
+
+            // 回车键同样验证，且不产生任何提示
+            passwordField.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    unlockBtn.click();
+                }
+            });
+
+            // 额外确保没有任何地方会输出密码或者提示消息。
+            // 页面中完全没有消息条、toast、提示区，完全符合『不要多的提示』
+            // 同时密码字串只存在内存中，没有任何DOM文本暴露“123456”。
+        })();
+    </script>
+</body>
+</html>
